@@ -7,7 +7,7 @@ console.log('Number:' ,randomNum);
 
 window.speechRecognition = window.speechRecognition || window.webkitSpeechRecognition;
 
-let recognition = new window.SpeechRecognition();
+let recognition = new window.webkitSpeechRecognition();
 
 // Start recognition and game
 recognition.start();
@@ -15,10 +15,48 @@ recognition.start();
 function onSpeak(e){
     const msg = e.results[0][0].transcript;
    
-    // writeMessage(msg);
-    // checkNumber(msg);
+     writeMessage(msg);
+    checkNumber(msg);
 }
+  
+//check message against number
+  function checkNumber(msg) {
+      const num = +msg;
 
+      // check if it valid number
+      if(Number.isNaN(num)) {
+          msgEl.innerHTML += '<div>That is not a valid number</div>'; 
+          return;
+      }
+
+      // check in range
+      if(num > 100 || num < 1) {
+          msgEl.innerHTML = '<div>Number must be between 1 and 100</div>';
+          return;
+      } 
+
+      //check number
+      if(num === randomNum) {
+          document.body.innerHTML = `
+            <h2>Congrates! you have guessed the number! <br><br></h2>
+            it was ${num} </h2>
+            <button class="play-again" id="play-again">Play again</button>
+          `;
+      } else if(num > randomNum) {
+          msgEl.innerHTML += '<div>GO lower</div>'
+      } else {
+          msgEl.innerHTML += '<div>GO higher</div>'
+
+      }
+  }
+
+
+   function writeMessage(msg) {
+       msgEl.innerHTML = `
+         <div> You said: </div>
+         <span class="box">${msg}</span>
+       `; 
+   }
 
 //Generate random number
 function getRandomNumber() {
@@ -28,3 +66,13 @@ function getRandomNumber() {
 
 // Speak result
 recognition.addEventListener('result', onSpeak);
+
+// End SR service
+
+recognition.addEventListener('end', () => {recognition.start()});
+
+document.body.addEventListener('click', (e) => {
+    if(e.target.id == 'play-again') {
+       window.location.reload();
+    }
+})
